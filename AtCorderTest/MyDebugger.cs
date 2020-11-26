@@ -15,7 +15,7 @@ public static class MyDebugger
                 sw.Start();
                 object ret = process(new StringReader(str));
                 sw.Stop();
-                Debug.WriteLine(ret);
+                if (ret != null) Debug.WriteLine(ret);
                 Debug.WriteLine(sw.ElapsedMilliseconds + "ms");
             }
         }
