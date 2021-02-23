@@ -4,7 +4,7 @@ using System.IO;
 
 public static class MyDebugger
 {
-    public static void Test(Func<TextReader, object> process, string inputfile) {
+    public static void Test(string inputfile) {
         Debug.WriteLine("TEST CASE OF " + inputfile);
         using (var reader = new StreamReader(inputfile)) {
             var count = 1; string str;
@@ -13,7 +13,7 @@ public static class MyDebugger
                 Debug.WriteLine("----------" + count++ + "----------");
                 sw.Reset();
                 sw.Start();
-                object ret = process(new StringReader(str));
+                object ret = new Program().process(new StringReader(str));
                 sw.Stop();
                 if (ret != null) Debug.WriteLine(ret);
                 Debug.WriteLine(sw.ElapsedMilliseconds + "ms");

@@ -11,9 +11,11 @@ class TestCaseMaker
         Random r = new Random();
 
         using (var writer = new StreamWriter(inputfile)) {
-            writer.WriteLine(2*100000);
-            for(int i=0; i<2*100000; i++) {
-                writer.WriteLine("1 1000000000");
+            writer.WriteLine(10000);
+
+            for(int i=0; i < 10000; i++) {
+                writer.Write(1);
+                writer.Write(" ");
             }
         }
     }
