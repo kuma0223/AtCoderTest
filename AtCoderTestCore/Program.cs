@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Collections;
 
-
 class Program
 {
     const string Yes = "Yes";
@@ -18,8 +17,8 @@ class Program
 
     static void Main(string[] args) {
 #if DEBUG
-        MyDebugger.Test("../TextFile1.txt");
-        //MyDebugger.Test("../TextFile2.txt");
+        MyDebugger.Test("../../TextFile1.txt");
+        //MyDebugger.Test("../../TextFile2.txt");
         //TestCaseMaker.MakeTestCase1("../TextFile2.txt");
 #else
         object ret = new Program().process(new StreamReader(Console.OpenStandardInput()));
@@ -35,9 +34,7 @@ class Program
         var aa = new long[n];
         var bb = new long[n];
 
-        var pn = GetPrimeNumbers(600);
-
-        for(int i=0; i<n; i++) {
+        for (int i = 0; i < n; i++) {
             spl = input.ReadLine().Split(' ');
             var a = long.Parse(spl[0]);
             var b = long.Parse(spl[1]);
@@ -45,64 +42,60 @@ class Program
             bb[i] = b;
         }
 
-        var tbl = new long[100001];
+        var m = 100001;
 
-        tbl[aa[0]] = pn[0];
-        tbl[bb[0]] = 1;
+        var tbl = new int[101][];
 
-        for(int i=1; i<n; i++) {
-            var ntbl = new long[tbl.Length];
+        tbl[0] = new int[m];
+
+        tbl[0][aa[0]]++;
+        tbl[0][bb[0]]++;
+
+        for (int i = 1; i < n; i++) {
+            tbl[i] = new int[m];
             var a = aa[i];
             var b = bb[i];
 
-            for (int j = 0; j < tbl.Length; j++) {
-                if (tbl[j] != 0) {
+            for (int j = 0; j < m; j++) {
+                if (tbl[i-1][j] != 0) {
                     if (j + a <= s) {
-                        ntbl[j + a] = tbl[j] * pn[i];
+                        tbl[i][j + a] = 1;
                     }
                     if (j + b <= s) {
-                        ntbl[j + b] = tbl[j] * 1;
+                        tbl[i][j + b] = 1;
                     }
                 }
             }
-            tbl = ntbl;
         }
 
-        if(tbl[s] == 0) {
+        if (tbl[n-1][s] == 0) {
             return "Impossible";
         }
 
         var sb = new StringBuilder();
-        for(int i=0; i<n; i++) {
-            var x = pn[i];
-            if (tbl[s] % x == 0) sb.Append("A");
-            else sb.Append("B");
-        }
+        
+        for(int i=n-1; i>=1; i--) {
+            var a = aa[i];
+            var b = bb[i];
 
-        return sb;
-    }
-
-    static List<int> GetPrimeNumbers(int n) {
-        var tbl = new int[n + 1];
-
-        for (int i = 2; i <= Math.Sqrt(n);) {
-            if (tbl[i] == 0) {
-                var x = i * 2;
-                while (x <= n) {
-                    tbl[x] = 1;
-                    x += i;
-                }
+            if (s-a >= 0 && tbl[i-1][s-a] != 0) {
+                s -= a;
+                sb.Append("A");
+            } else {
+                s -= b;
+                sb.Append("B");
             }
-            i += (i < 3 ? 1 : 2);
         }
 
-        var ret = new List<int>();
-        ret.Add(2);
-        for (int i = 3; i <= n; i += 2) {
-            if (tbl[i] == 0) ret.Add(i);
-        }
+        if(s == aa[0]) sb.Append("A");
+        else sb.Append("B");
 
-        return ret;
+        var sbb = new StringBuilder();
+        for(int i=sb.Length-1; i>=0; i--) {
+            sbb.Append(sb[i]);
+        }
+        return sbb;
     }
+
+
 }
- 
