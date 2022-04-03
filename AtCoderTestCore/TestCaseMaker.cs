@@ -7,16 +7,26 @@ using System.Threading.Tasks;
 
 class TestCaseMaker
 {
-    public static void MakeTestCase1(string inputfile) {
-        Random r = new Random();
+    private static StreamWriter writer;
+    private static Random rand;
 
-        using (var writer = new StreamWriter(inputfile)) {
-            writer.WriteLine("100000 20");
+    public static void MakeTestCase(string inputfile) {
+        rand = new Random();
 
-            var sb = new StringBuilder();
-            for(int i=0; i < 100000; i++) {
-                writer.Write("a");
-            }
+        using (writer = new StreamWriter(inputfile)) {
+            WriteNumbers(1, 3, 100000, " ");
+        }
+    }
+
+    private static void WriteNumbers(long min, long max, int count, string separater) {
+        int len = count==0 ? count : (int)(max - min + 1);
+        long x = min;
+        
+        for(int i=0; i<len; i++) {
+            if(i != 0) writer.Write(separater);
+            writer.Write($"{x}");
+            x++;
+            if(x > max) x = min;
         }
     }
 }

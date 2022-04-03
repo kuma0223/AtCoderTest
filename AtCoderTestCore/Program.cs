@@ -4,8 +4,6 @@ using System.IO;
 using System.Text;
 using System.Linq;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
-using System.Collections;
 
 class Program
 {
@@ -13,13 +11,16 @@ class Program
     const string No = "No";
     const char White = '.';
     const char Black = '#';
-    const long Mod = 1000000007;
+    //const long Mod = 1000000007;
+    const long Mod = 998244353;
+
+    StringBuilder answer = new StringBuilder();
 
     static void Main(string[] args) {
 #if DEBUG
         MyDebugger.Test("../../TextFile1.txt");
-        //MyDebugger.Test("../../TextFile2.txt");
-        //TestCaseMaker.MakeTestCase1("../TextFile2.txt");
+        MyDebugger.Test("../../TextFile2.txt");
+        //TestCaseMaker.MakeTestCase("../../TextFile2.txt");
 #else
         object ret = new Program().process(new StreamReader(Console.OpenStandardInput()));
         if(ret != null) Console.WriteLine(ret);
@@ -27,75 +28,83 @@ class Program
     }
 
     public object process(TextReader input) {
-        var spl = input.ReadLine().Split(' ');
-        var n = int.Parse(spl[0]);
-        var s = long.Parse(spl[1]);
+        var n = int.Parse(input.ReadLine());
+        var s = input.ReadLine();
 
-        var aa = new long[n];
-        var bb = new long[n];
+        var m = 1024;
 
-        for (int i = 0; i < n; i++) {
-            spl = input.ReadLine().Split(' ');
-            var a = long.Parse(spl[0]);
-            var b = long.Parse(spl[1]);
-            aa[i] = a;
-            bb[i] = b;
+        var tbl = new long[m][];
+
+        for(int i=0; i<m; i++) {
+            tbl[i] = new long[10];
         }
 
-        var m = 100001;
+        int On(int b, int tar) {
+            return b | (1 << tar);
+        }
+        int Off(int b, int tar) {
+            return b & ~(1 << tar);
+        }
+        bool IsOn(int b, int tar) {
+            return ((b >> tar) & 0x01) == 1;
+        }
 
-        var tbl = new int[101][];
+        tbl[On(0, s[0] - 'A')][s[0] - 'A'] = 1;
 
-        tbl[0] = new int[m];
+        //Debug.WriteLine($"{sum(tbl)}");
 
-        tbl[0][aa[0]]++;
-        tbl[0][bb[0]]++;
+        for (int i=1; i<n; i++) {
+            var bit = s[i] - 'A';
 
-        for (int i = 1; i < n; i++) {
-            tbl[i] = new int[m];
-            var a = aa[i];
-            var b = bb[i];
+            var next = new long[m][];
 
-            for (int j = 0; j < m; j++) {
-                if (tbl[i-1][j] != 0) {
-                    if (j + a <= s) {
-                        tbl[i][j + a] = 1;
-                    }
-                    if (j + b <= s) {
-                        tbl[i][j + b] = 1;
-                    }
+            for(int j=0; j<m; j++) {
+                next[j] = new long[10];
+                Array.Copy(tbl[j], next[j], 10);
+            }
+
+            for (int j=0; j<m; j++) {
+                if(!IsOn(j, bit)) continue;
+
+                if (j == On(0, bit)) {
+                    //bitのみ選ぶパターン
+                    next[j][bit] += 1 + tbl[j][bit];
+                    next[j][bit] %= Mod;
+                } else {
+                    //加えてbitを選ぶパターン
+                    next[j][bit] += sum(tbl[Off(j, bit)]) + tbl[j][bit];
+                    next[j][bit] %= Mod;
                 }
             }
+
+            tbl = next;
+
+            //Debug.WriteLine($"{sum(tbl)}");
         }
 
-        if (tbl[n-1][s] == 0) {
-            return "Impossible";
-        }
-
-        var sb = new StringBuilder();
-        
-        for(int i=n-1; i>=1; i--) {
-            var a = aa[i];
-            var b = bb[i];
-
-            if (s-a >= 0 && tbl[i-1][s-a] != 0) {
-                s -= a;
-                sb.Append("A");
-            } else {
-                s -= b;
-                sb.Append("B");
-            }
-        }
-
-        if(s == aa[0]) sb.Append("A");
-        else sb.Append("B");
-
-        var sbb = new StringBuilder();
-        for(int i=sb.Length-1; i>=0; i--) {
-            sbb.Append(sb[i]);
-        }
-        return sbb;
+        return sum(tbl);
     }
 
+    long sum(long[] ary) {
+        long ans = 0;
 
+        foreach (var y in ary) {
+            ans += y;
+            ans %= Mod;
+        }
+        return ans;
+    }
+
+    long sum(long[][] ary) {
+        long ans = 0;
+
+        foreach (var x in ary) {
+            foreach (var y in x) {
+                ans += y;
+                ans %= Mod;
+            }
+        }
+        return ans;
+    }
+    //------------------------------------------------
 }
